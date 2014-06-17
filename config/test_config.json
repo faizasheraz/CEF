@@ -1,0 +1,72 @@
+{
+    "VPCs" : 
+    [
+        {
+            "vpc-name":"vpc1",
+            "cidr":"10.1.1.0/16",
+            "security-groups" :
+            [ 
+                {
+                    "name" : "sec1-vpc1",
+                    "description" : "test security group for vpc",
+                    "region" : "us-east-1",
+                    "rules" :
+                    [
+                        {
+                            "id":"1",
+                            "protocol":"tcp",
+                            "from_src_port":"0",
+                            "to_src_port":"80",
+                            "src_ip_address":"0.0.0.0/0",
+                            "src_group":null
+                        },
+                        {
+                            "id":"2",
+                            "protocol":"udp",
+                            "from_src_port":"0",
+                            "to_src_port":"80",
+                            "src_ip_address":"0.0.0.0/0",
+                            "src_group":null
+                        }
+                    ]
+                },
+                {
+                    "name" : "sec2-vpc1",
+                    "description" : "test security group for vpc",
+                    "region" : "us-east-1",
+                    "rules" :
+                    [
+                        {
+                            "id":"1",
+                            "protocol":"tcp",
+                            "from_src_port":"0",
+                            "to_src_port":"80",
+                            "src_ip_address":"0.0.0.0/0",
+                            "src_group":null
+                        },
+                        {
+                            "id":"2",
+                            "protocol":"udp",
+                            "from_src_port":"0",
+                            "to_src_port":"80",
+                            "src_ip_address":"0.0.0.0/0",
+                            "src_group":null
+                        }
+                    ]
+                }
+            ],
+            "vm_groups": 
+            [
+                {
+                    "group-name":"group-1",
+                    "number-of-vms":"2",
+                    "region": "us-east-1", 
+                    "type":"t1.micro",
+                    "region":"us-east-1",
+                    "ami":"ami-358c955c",
+                    "private-ip":"10.1.1.10"
+                }
+            ]
+        }
+    ]
+}

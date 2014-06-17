@@ -1,0 +1,45 @@
+
+class aws_vm(vm):
+  # xxx
+  ip_address = 
+  state = 
+  reservation = 
+  instance = 
+  
+  def __init__(self, vmtype, region, image_id, key_name, placement):
+    self.vmtype = vmtype
+    self.region = region
+    self.image_id = image_id
+    self.key_name = key_name
+    self.placement = placement
+    
+    self.self_address = 
+
+
+  def launch():
+    self.reservation = self.ec2.run_instances(self.image_id, self.key_name, self.placement)
+    
+    for r in self.ec2.get_all_instances():
+      print "waiting for reservation id"
+      if r.id == self.reservation.id:
+        break
+
+    self.instance = self.reservation.instances[0]
+    while (self.instance.status != "Running"):
+      self.instance.update()
+
+
+  def terminate():
+    ec2.terminate_instances(self.instance.id)
+    while (self.instance.status != "terminated"):
+      self.instance.update()
+    
+  def start():
+    ec2.start_instances(self.instance.id)
+    while (self.instance.status != "Running"):
+      self.instance.update()
+
+  def stop():
+    ec2.stop_instances(self.instance.id)
+    while (self.instance.status != "Stopped"):
+      self.instance.update()

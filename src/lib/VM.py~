@@ -1,0 +1,13 @@
+import boto
+
+class vm:
+
+  def __init__(self, vm):
+    self.vm_type = vm
+  
+  def connect():
+    if (vm == "aws"):
+      self.ec2 = boto.connect_ec2()
+    else:
+      print "connecting to local"
+    
