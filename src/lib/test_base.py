@@ -9,7 +9,7 @@ import time
 from lib import vpc
 from boto import ec2
 
-class TestEnvir(object):
+class TestBase():
     '''
     classdocs
     '''
@@ -50,37 +50,51 @@ class TestEnvir(object):
             
             vm_groups = a_vpc["vm_groups"]
             for vm_group in vm_groups:
-                if (vm_group["key-name"] == None):
-                    #  Create a key pair
-                    conn = ec2.connect_to_region(vm_group["region"])
-                    key = conn.create_key_pair(str(vm_group["group-name"]))
-                    key.save('/home/faiza/') # xxxx change path
-                    self._launch_vms_in_group(my_vpc, vm_group)
-                    conn.delete_key_pair(str(vm_group["group-name"]))
-                    
-                else:
-                    self._launch_vms_in_group(my_vpc, vm_group)
-                # xxx add or check for ssh rule in security group
-            time.sleep(50)
+                self._launch_vms_in_group(my_vpc, vm_group)
+            self.vpc_list.append(my_vpc)    
+        time.sleep(50)
+            
             
     def _launch_vms_in_group(self, my_vpc, vm_group):
         number_of_vms = int(vm_group["number-of-vms"])
-        for i in range(0, number_of_vms):          
+        
+        # get ids of security groups and add rule for rpyc
+        rule = {"protocol":"tcp", "from_src_port":"18812", "to_src_port":"18812",
+                    "src_ip_address":"0.0.0.0/0", "src_group":None}
+        sec_id = my_vpc.get_security_group_id(vm_group["security-group"])
+        if sec_id != None:
+            security_group_id_list = []
+            security_group_id_list.append(sec_id)
+            my_vpc.add_rule_in_security_group(vm_group["security-group"], rule)
+        else:
+            security_group_id_list = None
+            my_vpc.add_rule_in_security_group("default", rule)
+            
+        with open(vm_group["user_data_file"]) as fd:
+            startup_script = fd.read()
+            
+        for i in range(0, number_of_vms):
             my_vpc.create_aws_instance(str(i), vm_group["ami"],
                                        vm_group["type"],
                                        vm_group["region"],
-                                       vm_group["key-name"],
-                                       vm_group["placement"],
-                                       vm_group["security-group"],
-                                       vm_group["user_data"],
-                                       vm_group["private-ip"],
-                                       vm_group["subnet-id"],
-                                       vm_group["instance-profile-name"])
-            #xxx launch vms as well
+                                       vm_group["key_name"],
+                                       placement = None,
+                                       security_groups = security_group_id_list,
+                                       user_data = startup_script)
+            
+            
+    def __create_key_pair(self, region, key_name, key_path):
+        #  Create a key pair
+        conn = ec2.connect_to_region(region)
+        key = conn.create_key_pair(key_name)
+        key.save(key_path)
+        
+        
+    def __delete_key_pair(self, region, key_name):
+        conn = ec2.connect_to_region(region)
+        conn.delete_key_pair(key_name)
                     
         
-    def load(self):
-        pass
-    
     def cleanup(self):
+        del self.vpc_list[:]
         pass

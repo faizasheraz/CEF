@@ -1,4 +1,5 @@
 import sys
+import time
 
 import boto
 from boto import ec2
@@ -44,6 +45,10 @@ class AWSVm():
         self.__earlier_run_duration = ""
     
         self.ec2_conn = ec2.connect_to_region(self.__region)
+        
+        self.elastic_ip_address = self.ec2_conn.allocate_address("vpc")
+        
+        
 
 # TODO: Handle other possible exceptions
     def launch(self):
@@ -58,7 +63,7 @@ class AWSVm():
                                                              private_ip_address = self.__private_ip_address,
                                                              subnet_id = self.__subnet_id,
                                                              instance_profile_name = self.__instance_profile_name,
-                                                             dry_run = True)
+                                                             dry_run = False)
             #for r in self.ec2_conn.get_all_instances():
             #    #print "waiting for reservation id"
             #    if r.id == self.__reservation.id:
@@ -68,21 +73,29 @@ class AWSVm():
             while (self.__instance.state != Ec2State.RUNNING):
                 self.__instance.update()
             self.__state = Ec2State.RUNNING
-            self.__private_ip = self.__instance.private_ip_address
-            self.__public_ip = self.__instance.ip_address
             
-            print "private_ip", self.__private_ip
-            print "public ip", self.__public_ip
+            print "state of instance" , self.__instance.state
+            
             self.__increment_usage()
             print "Instance Launched"
+            
+            self.ec2_conn.associate_address(self.__instance.id, None,
+                                            self.elastic_ip_address.allocation_id)
+            
+            # wait for the ip to be assigned
+            time.sleep(60)            
+            self.__public_ip = self.elastic_ip_address.public_ip
+            self.__private_ip = self.__instance.private_ip_address
+            print "private_ip", self.__private_ip
+            print "public ip", self.__public_ip
+            
+            print "security groups to be assigned are: \n" , self.__security_groups
             if self.__security_groups is not None:
                 self.ec2_conn.modify_instance_attribute(self.__instance.id,
                                                         "groupSet",
                                                         Set(self.__security_groups))
-             
-
         except exception.BotoServerError as e:
-            print "Error", e
+            print "Boto Server Error - AWSVM: launch", e
         except:
             print "An exception has occurred" 
             raise
@@ -92,11 +105,17 @@ class AWSVm():
     def terminate(self):
         if (self.__state != None) and (self.__state != Ec2State.TERMINATED):
             try:
+                
+                # clean-up associated public ip addresses
+                self.elastic_ip_address.disassociate()
+                self.elastic_ip_address.delete()
+                
                 self.ec2_conn.terminate_instances(self.__instance.id,
                                                   dry_run = False)
                 while (self.__instance.state != Ec2State.TERMINATED):
                     self.__instance.update()
                 self.__state = Ec2State.TERMINATED
+                
                 self.__private_ip = None
                 self.__public_ip = None
             except exception.BotoServerError as e:

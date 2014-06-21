@@ -62,9 +62,10 @@
                     "number-of-vms":"2",
                     "region": "us-east-1", 
                     "type":"t1.micro",
-                    "region":"us-east-1",
+                    "key_name":"faiza_key",
                     "ami":"ami-358c955c",
-                    "private-ip":"10.1.1.10"
+                    "security-group":"sec1-vpc1",
+                    "user_data_file": "/home/faiza/workspace/CEF/config/initialization_script.sh"
                 }
             ]
         }

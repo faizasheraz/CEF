@@ -32,10 +32,22 @@ class SecurityGroup():
                 self.sec_group = self.ec2_conn.create_security_group(name,
                                                                     description,
                                                                     vpc_id)
+            while (1):
+                if self.__group_created(vpc_id) == 1:
+                    break
         except:
             print "Exception: SecurityGroup __init__"
             raise
        
+    # xxx wait for sec group to be created
+    def __group_created(self, vpc_id):    
+        groups = self.ec2_conn.get_all_security_groups(filters={"vpc-id":vpc_id})
+        print "__group_created: groups are: " , groups
+        for group in groups:
+            if self.sec_group.name == group.name:
+                return 1
+        return 0
+                    
     # {"protocol":"tcp", from_src_port:"0", to_src_port:"80",
     #   src_ip_address:"0.0.0.0/0", src_group="None"} 
     def add_inbound_rule(self, rule):

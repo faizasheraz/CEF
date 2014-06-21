@@ -65,8 +65,11 @@ Calculate latency between vms
 get hop count between vms
 
 ping [list src addresses] [list destination addresses]
-craftedtcp packets [list src addresses] [list destination addresses] [burst length] [rate]
-crafted udp traffic [list src addresses] [list destination addresses] [burst length] [rate]
+iperf [source] [destination]
+tcp_session
+udp_session
+x craftedtcp packets [list src addresses] [list destination addresses] [burst length] [rate]
+x crafted udp traffic [list src addresses] [list destination addresses] [burst length] [rate]
 calculate bandwidth throughput?? [src][dst]
 calculate average latency [src][dst]
 capture packets??
