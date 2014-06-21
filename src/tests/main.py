@@ -9,6 +9,8 @@ from lib import vpc
 from lib import test_base
 from lib import traffic
 
+# properties ("ami-358c955c", "t1.micro", "us-east-1", None, None)
+
 def create_topology():
     """
     vpc1 = vpc.VPC("vpc-1", "10.0.0.0/16")
@@ -70,10 +72,10 @@ def create_topology():
     
     #vm2_private_ip = vm2.get_private_ip()
     
-    #test = traffic.traffic()
+    #test = traffic.Traffic()
     #test.ping([vm1], [vm2_private_ip], "/home/faiza/workspace/CEF/results/output_log.txt")
     #time.sleep(50)
-    #("ami-358c955c", "t1.micro", "us-east-1", None, None)
+    
     #env = test_env.TestEnvir("/home/faiza/workspace/CEF/config/test_config.json")
     #env.setup()
     print "instance created"

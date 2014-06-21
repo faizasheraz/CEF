@@ -27,6 +27,14 @@
                             "to_src_port":"80",
                             "src_ip_address":"0.0.0.0/0",
                             "src_group":null
+                        },
+                        {
+                            "id":"3",
+                            "protocol":"icmp",
+                            "from_src_port":"-1",
+                            "to_src_port":"-1",
+                            "src_ip_address":"0.0.0.0/0",
+                            "src_group":null
                         }
                     ]
                 },

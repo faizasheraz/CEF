@@ -5,7 +5,7 @@ import rpyc
 
 from lib import aws_vm
 
-class traffic():
+class Traffic():
     '''
     classdocs
     '''
@@ -32,16 +32,21 @@ def remote_ping(address):
         '''
         for vm in src_vms:
             ip_address = vm.get_public_ip()
+            private_ip_address = vm.get_private_ip()
             rpyc_conn = rpyc.classic.connect(ip_address)
             rpyc_conn.execute(remote_ping_text)
             remote_ping = rpyc_conn.namespace['remote_ping']
             for dest_address in dest_addresses:
-                output_text = remote_ping(dest_address)
-                print output_text
-                with open(log_file, "a") as fd:
-                    text = "\nping from " + vm.vm_name + " to " + dest_address + "\n"
-                    fd.write(text)
-                    fd.write(output_text)
+                if private_ip_address != dest_address:
+                    output_text = remote_ping(dest_address)
+                    print output_text
+                    try:
+                        with open(log_file, "a+") as fd:
+                            text = "\nping from " + vm.vm_name + " to " + dest_address + "\n"
+                            fd.write(text)
+                            fd.write(output_text)
+                    except:
+                        print "Could not write to file"
                     
     def trace_route(self):
         pass
